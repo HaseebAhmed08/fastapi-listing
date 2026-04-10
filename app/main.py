@@ -5,6 +5,7 @@ Initializes the app, configures middleware, and registers routes.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from contextlib import asynccontextmanager
 import logging
 
@@ -93,6 +94,12 @@ async def root():
         "status": "running",
         "docs": "/docs",
     }
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Return empty favicon to suppress 404 warnings in development."""
+    return Response(status_code=204)
 
 
 @app.get("/health", tags=["Health"])
