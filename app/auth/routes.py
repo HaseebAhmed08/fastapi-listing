@@ -4,6 +4,7 @@ Provides API endpoints for user authentication.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import Annotated
 
@@ -12,6 +13,9 @@ from app.auth.schemas import UserRegister, UserLogin, TokenResponse, UserRespons
 from app.auth import crud
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+# Bearer token scheme
+security = HTTPBearer()
 
 
 @router.post(
@@ -128,7 +132,7 @@ async def refresh_token(refresh_token: str, db: Annotated[Session, Depends(get_d
     description="Retrieve the authenticated user's profile information."
 )
 async def get_current_user(
-    token: Annotated[str, Depends()],
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     db: Annotated[Session, Depends(get_db)]
 ):
     """
@@ -136,9 +140,7 @@ async def get_current_user(
 
     Requires Bearer token in Authorization header.
     """
-    # Note: This is a placeholder. In production, you'd extract the token
-    # from the Authorization header and validate it.
-    # For now, this endpoint expects a token parameter.
+    token = credentials.credentials
     payload = crud.decode_token(token)
     if not payload:
         raise HTTPException(

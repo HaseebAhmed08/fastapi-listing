@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     
     # API settings
     API_V1_PREFIX: str = "/api/v1"
+
+    # JWT settings
+    SECRET_KEY: str = "your-secret-key-change-this-in-production-use-long-random-string"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     class Config:
         env_file = ".env"
