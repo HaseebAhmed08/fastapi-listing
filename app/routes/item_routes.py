@@ -5,7 +5,7 @@ Defines all CRUD endpoints for items with pagination, search, and sorting.
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, Annotated
 import logging
 
 from app.database import get_db
@@ -166,3 +166,37 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error deleting item {item_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete item")
+
+
+@router.post(
+    "/seed",
+    response_model=MessageResponse,
+    summary="Seed dummy data",
+    description="Populate the database with dummy items for testing.",
+)
+def seed_data(db: Session = Depends(get_db)):
+    """
+    Seed the database with 10 dummy items.
+    Useful for testing and development.
+    """
+    from app.schemas import ItemCreate as IC
+
+    dummy_items = [
+        IC(title="Laptop Pro 15", description="High-performance laptop with 15-inch display, 16GB RAM, 512GB SSD", price=1299.99),
+        IC(title="Wireless Mouse", description="Ergonomic wireless mouse with long battery life", price=29.99),
+        IC(title="USB-C Hub", description="7-in-1 USB-C hub with HDMI, USB 3.0, and SD card reader", price=49.99),
+        IC(title="Mechanical Keyboard", description="RGB mechanical keyboard with Cherry MX Blue switches", price=89.99),
+        IC(title="Monitor 27 inch", description="4K IPS monitor with 144Hz refresh rate and HDR support", price=449.99),
+        IC(title="Webcam HD", description="1080p webcam with built-in microphone and auto light correction", price=59.99),
+        IC(title="Desk Lamp", description="LED desk lamp with adjustable brightness and color temperature", price=34.99),
+        IC(title="Bluetooth Speaker", description="Portable waterproof speaker with 12-hour battery life", price=79.99),
+        IC(title="Phone Stand", description="Adjustable aluminum stand for smartphones and tablets", price=14.99),
+        IC(title="External SSD 1TB", description="Ultra-fast portable SSD with USB 3.2 Gen 2 support", price=109.99),
+    ]
+
+    count = 0
+    for item_data in dummy_items:
+        crud.create_item(db=db, item=item_data)
+        count += 1
+
+    return MessageResponse(message=f"Seeded {count} dummy items successfully!", status_code=201)
