@@ -12,6 +12,7 @@ import logging
 from app.config import get_settings
 from app.database import create_tables
 from app.routes import item_routes
+from app.auth import routes as auth_routes
 
 # Configure logging
 logging.basicConfig(
@@ -83,6 +84,7 @@ app.add_middleware(
 
 # Include API routes with version prefix
 app.include_router(item_routes.router, prefix=settings.API_V1_PREFIX)
+app.include_router(auth_routes.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/", tags=["Health"])
